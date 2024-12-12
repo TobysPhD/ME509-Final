@@ -13,7 +13,7 @@
 \usepackage{gensymb}
 \usepackage{rotating}
 \usepackage{hyperref}
-\title{ME509 Heat Transfer Term Project}
+\title{ME509 Heat Transfer Final Exam}
 
 \author{Tobin A. Nelson}
 \affil{University of Alabama, Tuscaloosa, AL, 35487}
@@ -23,32 +23,109 @@
 \maketitle
 
 
-\section{Instructions}
-\lettrine{T}his project asks students to modify two provided MATLAB codes which utilize the Crank Nicolson technique to model one dimensional heat transfer in a flat plate with time dependent heat flux at x = 0, perfectly insulated at x=L, and an initial temperature of 0 across the plate (X22B-0T0). The students project descriptions asks for the code to be modified to create a Type 3 (Robins) boundary condition at x=0 and t Type 2 at x=L. The first boundary condition being characterized by $Bi_L=hL/k$ and an environment temperature $T_\infty [^oC]$. The following parameters were also given: L=2, nx=40, dt=0.01, T\textunderscore inf=5, x=[0:L/nx:L], t\textunderscore final=1.8, and $q(t)=1.0 W/m^2$ beginning at t=0. 
-\section{Theory}
-To modify the code, the proper form of the heat equation must be found and then discretized using the Crank-Nicolson method.
-\subsection{The Heat Equation}
-The given modifications indicate one dimensional transient heat transfer in a thin slab with convection at x=0 and heat conduction at x=L. This can be characterized by X32B1-T0 with the following governing equation and boundary and initial conditions.
+\section{Introduction}
+\lettrine{T}his document is the final exam for the Fall 2024 section of ME509 "Intermediate Heate Transfer" at the University of Alabama taught by Dr. Farooza Samadi. The class covered the topics of steady steat and transient conduction and convection, forced convection, and radiation. This exam consists of two problems covering the topics of forced convection and radiation. The instructions for the exam are included in attachment A \cite{samadi}.
+
+
+
+\section{Problem 1}
+The first problem asks the students to analyze forced convection in a pipe. Water inters a 100 m long steel pipe with an initil temperature of $T_m=100^o C$. The inner diameter of the pipe is 50 mm and the outer diameter is 56 mm. Skin roughness in the pipe is $e=4.572e-5 m$ and the heat transfer coefficient for steel is $h_{steel}=40 W/m-K$. The pipe is in a cooling fluid with a temperature of $T_\infty = 20^o C$ and heat transfer cefficient of $h_o=15 W/m^2-K$. A diagram of the problem can be seen in figure 1.
+
+\begin{figure}[hbt!]
+\centering
+\includegraphics[width=.5\textwidth]{Bi0.jpg}
+\caption{Water flowing through a pipe}
+\end{figure}
+
+\subsection{}
+The first part of the problem asks for the heat transfer coefficient for the inner wall of the pipe to be plotted as a funtion of fluid velocity for Reynods number of 5,000 to 50,000.
+
+The reynolds number for flow through a pipe is given as a function of the dydrodynamic diameter, the mean fluid velocity, density, and viscosity. 
 
 \begin{equation}
 \label{sample:equation}
-   \frac{\partial^2 T}{\partial x^2}=\frac{1}{\alpha}\frac{\partial T}{\partial t}
+   Re_D=\frac{\rho U_m D_i}{\mu}=\frac{U_m D_I}{\nu}
+\end{equation}
+
+For a circular pipe, the hydrodanamic diameter is the same as the inner diameter. Additionlly, for inconpressible fluids, the mean velocity remains constant. This allows the mean velocity to be calculated as a function of Reynolds number.
+
+\begin{equation}
+\label{sample:equation}
+   U_m = \frac{Re_D \nu}{D_i}
+\end{equation} 
+
+The fully developed turbulent Nusselt number is a function of the Reynolds number, Prandtl Number, and friction. 
+
+\begin{equation}
+\label{sample:equation}
+   Nu_{Dfd}=\frac{\left(\frac{f}{8}\right)(Re_D-1000)Pr}{1+12.7(Pr^{2/3}-1)\sqrt{\frac{f}{8}}}
+\end{equation}
+
+The heat transfer coefficient can be estimated as a function of the Nusselt number. This is a conservative estimation due to the Nusselt number being the averaged constant for the entire length of the pipe.
+
+\begin{equation}
+\label{sample:equation}
+  h_i=frac{Nu_{Dfd}k_{H_2O}}{D_i}
+\end{equation}
+
+MATLAB functions with the properties of water were provided and can be found in Appendices B.1-B.6, using these, a program was written to olve for the velocity and heat transfer coffeicient for the given Reynolds numbers. The results were then plotted in figure 2, amd the code appears in attachment B.7.
+
+\begin{figure}[hbt!]
+\centering
+\includegraphics[width=.5\textwidth]{Bi0.jpg}
+\caption{Interior convective heat transfer coeffecient vs Mean Velocity}
+\end{figure}
+
+\subsection{}
+The next part of the problem asks for the exit temperatur of the pipe. This can be found using the differential energy balance.
+
+\begin{equation}
+\label{sample:equation}
+  H_{in}+q''{out}=H_{in}+\frac{dH}{dx}dx
 \end{equation}
 
 \begin{equation}
 \label{sample:equation}
-  \left[ -k\frac{\partial T}{\partial x}+hT\right]_{x=0}=hT_{\infty}
+  \dot{m}c_pT_m+\frac{T_\infty-T_m}{R'_tot}= \dot{m}c_pT_m+\dot{m}c_p\frac{dT}{dx}dx
 \end{equation}
 
 \begin{equation}
 \label{sample:equation}
-  \left[ -k\frac{\partial T}{\partial x}\right]_{x=L}=q(t)
+  \frac{T_\infty-T_m}{R'_tot}= \dot{m}c_p\frac{dT}{dx}dx
 \end{equation}
+
+Since $T_\infty$ and $R'_{tot}$ are estimated to be constant, rearranging and integrating yeilds the following equation for $T_{out}.
 
 \begin{equation}
 \label{sample:equation}
-  T(0)=0
+  T_{out}=t_\infty-(T_\infty-T_in)exp\left(-\frac{L}{R'_{tot}\dot{m}c_p}\right)
 \end{equation}
+
+$\frac{L}{R'{tot}}$ is equal to the total resistance $R{tot}$
+
+\begin{equation}
+\label{sample:equation}
+  \frac{L}{R'_{tot}}=R_{tot}=\frac{1}{\bar{h_{i}}\pi D_{i}}+\frac{ln\left(\frac{D_{o}}{D_{i}}\right)}{2L\pi k_{steel}}+\frac{1}{\bar{h_o} \pi D_o L}
+\end{equation}
+
+Replacing $\frac{1}{R{tot}}$ with the variable UA gives
+
+
+\begin{equation}
+\label{sample:equation}
+  T_{out}=t_\infty-(T_\infty-T_in)exp\left(-\frac{UA}{\dot{m}c_p}\right)
+\end{equation}
+
+\section{Problem 2}
+
+
+
+
+
+
+
+
+
 
 \subsection{Crank-Nicolson}
 The Crank Nicolson method is a second order in space and time, finite differencing method. It works by combining the forward Euler method at point n with the backward Euler method at point n+1. This combines the simplicity of the forward Euler with the stability of the backward Euler method, making it unconditionally stable. It can be expressed as follows:
